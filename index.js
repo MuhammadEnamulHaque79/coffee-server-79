@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -26,13 +26,41 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-//RECEIVE DATA FROM CLIENT SIDE;
-app.post('/addCoffee',async(req,res)=>{
-    const newCoffee = req.body;
-    console.log(newCoffee);
+    // const database = client.db("insertDB");
+    // const haiku = database.collection("haiku");
+    const coffeeCollection = client.db('coffeeDB').collection('coffee');
 
+
+    //FIND data from database;
+
+    app.get('/addCoffee',async(req,res)=>{
+        const cursor = coffeeCollection .find();
+        const result = await cursor.toArray();
+        res.send(result);
+
+       
 })
 
+//RECEIVE DATA FROM CLIENT SIDE;
+    app.post('/addCoffee',async(req,res)=>{
+    const newCoffee = req.body;
+    // console.log(newCoffee);
+    const result = await coffeeCollection.insertOne(newCoffee);
+    res.send(result);
+
+
+})
+//DELETE data from database;
+
+app.delete('/addCoffee/:id',async(req,res)=>{
+  const id = req.params.id;
+  const query = { _id:new ObjectId(id) };
+  const result = await coffeeCollection.deleteOne(query);
+  res.send(result);
+  // if(data.deletedCount > 0){
+  //   console.log("Successfully deleted one document.");
+  // }
+})
 
 
 
